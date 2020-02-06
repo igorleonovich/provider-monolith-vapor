@@ -29,4 +29,19 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var migrations = MigrationConfig()
     migrations.add(model: Todo.self, database: .sqlite)
     services.register(migrations)
+    
+    // WebSockets
+    let websockets = NIOWebSocketServer.default()
+    websockets.get("echo") { ws, req in
+        print("ws connected")
+        ws.onText { ws, text in
+          print("ws received: \(text)")
+          ws.send("echo - \(text)")
+        }
+    }
+    services.register(websockets, as: WebSocketServer.self)
+    
+    // Server Config
+    let serverConfigure = NIOServerConfig.default(hostname: "localhost", port: 8888)
+    services.register(serverConfigure)
 }
