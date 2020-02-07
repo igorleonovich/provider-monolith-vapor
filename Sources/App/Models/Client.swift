@@ -1,18 +1,22 @@
 import FluentSQLite
 import Vapor
 
-/// A single entry of a Client list.
+enum ClientStatus: String {
+    case down
+    case busy
+    case up
+}
+
 final class Client: SQLiteModel {
-    /// The unique identifier for this `Client`.
+    
     var id: Int?
-
-    /// A title describing what this `Client` entails.
     var hostname: String
-
-    /// Creates a new `Client`.
+    var status: String
+    
     init(id: Int? = nil, hostname: String) {
         self.id = id
         self.hostname = hostname
+        self.status = ClientStatus.down.rawValue
     }
 }
 
