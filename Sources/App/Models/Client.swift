@@ -7,16 +7,14 @@ enum ClientStatus: String {
     case up
 }
 
-final class Client: SQLiteModel {
+final class Client: SQLiteUUIDModel {
     
-    var id: Int?
+    var id: UUID?
     var hostname: String
-    var status: String
     
-    init(id: Int? = nil, hostname: String) {
+    init(id: UUID? = nil, hostname: String) {
         self.id = id
         self.hostname = hostname
-        self.status = ClientStatus.down.rawValue
     }
 }
 

@@ -12,4 +12,8 @@ public func routes(_ router: Router) throws {
     router.get("clients", use: clientController.index)
     router.post("clients", use: clientController.create)
     router.delete("clients", Client.parameter, use: clientController.delete)
+    
+//    router.get("clients", Client.parameter) { req -> Future<Client> in
+//        return try req.parameters.next(Client.self)
+//    }
 }

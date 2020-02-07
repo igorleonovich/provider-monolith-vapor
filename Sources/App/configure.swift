@@ -31,15 +31,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(migrations)
     
     // WebSockets
-    let websockets = NIOWebSocketServer.default()
-    websockets.get("echo") { ws, req in
-        print("ws connected")
-        ws.onText { ws, text in
-          print("ws received: \(text)")
-          ws.send("echo - \(text)")
-        }
-    }
-    services.register(websockets, as: WebSocketServer.self)
+    let webSocketServer = NIOWebSocketServer.default()
+    WebSockets.configure(webSocketServer)
+    services.register(webSocketServer, as: WebSocketServer.self)
     
     // Server Config
     let serverConfigure = NIOServerConfig.default(hostname: "localhost", port: 8888)

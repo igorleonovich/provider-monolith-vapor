@@ -1,5 +1,7 @@
 import Vapor
 
+let globalClientController = ClientController()
+
 /// Controls basic CRUD operations on `Client`s.
 final class ClientController {
     /// Returns a list of all `Client`s.
@@ -10,6 +12,7 @@ final class ClientController {
     /// Saves a decoded `Client` to the database.
     func create(_ req: Request) throws -> Future<Client> {
         return try req.content.decode(Client.self).flatMap { client in
+            print("creating client: hostname: \(client.hostname)")
             return client.save(on: req)
         }
     }
