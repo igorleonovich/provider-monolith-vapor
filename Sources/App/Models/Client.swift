@@ -1,7 +1,8 @@
 import FluentSQLite
 import Vapor
 
-enum ClientStatus: String {
+enum ClientState: String {
+    case unknown
     case down
     case busy
     case up
@@ -11,10 +12,12 @@ final class Client: SQLiteUUIDModel {
     
     var id: UUID?
     var hostname: String
+    var state: String
     
-    init(id: UUID? = nil, hostname: String) {
+    init(id: UUID? = nil, hostname: String, state: String = ClientState.unknown.rawValue) {
         self.id = id
         self.hostname = hostname
+        self.state = state
     }
 }
 
