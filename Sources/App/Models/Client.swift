@@ -3,20 +3,26 @@ import Vapor
 
 enum ClientState: String {
     case unknown
-    case down
-    case busy
-    case up
+    case ready
+    case progress
+    case running
 }
 
 final class Client: SQLiteUUIDModel {
     
     var id: UUID?
-    var hostname: String
+    var hostName: String
+    var userName: String
+    var osType: String
+    var osRelease: String
     var state: String
     
-    init(id: UUID? = nil, hostname: String, state: String = ClientState.unknown.rawValue) {
+    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osRelease: String, state: String = ClientState.unknown.rawValue) {
         self.id = id
-        self.hostname = hostname
+        self.hostName = hostName
+        self.userName = userName
+        self.osType = osType
+        self.osRelease = osRelease
         self.state = state
     }
 }
