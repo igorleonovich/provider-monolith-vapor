@@ -2,9 +2,16 @@ import Vapor
 
 struct WebSockets {
     
+    static var clientID: UUID? = nil
+    
     static func configure(_ webSocketServer: NIOWebSocketServer) {
         
         webSocketServer.get("connect", Client.parameter) { webSocket, req in
+            
+            let _ = try req.parameters.next(Client.self).flatMap { client -> Future<Client> in
+                clientID = client.id
+                return client.save(on: req)
+            }
 
             webSocket.onText { webSocket, text in
                 
@@ -15,11 +22,12 @@ struct WebSockets {
                 
                 print("ws received data: \(data)")
                 
-                do {
-                    let clientToServerAction = try JSONDecoder().decode(ClientToServerAction.self, from: data)
-
-                    let _ = try req.parameters.next(Client.self).flatMap { client -> Future<Client> in
-
+                Client.find(clientID!, on: req).do { client in
+                    
+                    guard let client = client else { return }
+                    
+                    do {
+                        let clientToServerAction = try JSONDecoder().decode(ClientToServerAction.self, from: data)
                         if let clientToServerActionType = ClientToServerActionType.init(rawValue: clientToServerAction.type) {
 
                             switch clientToServerActionType {
@@ -45,11 +53,11 @@ struct WebSockets {
                                 }
                             }
                         }
-
-                        return client.save(on: req)
+                    } catch {
+                        print(error)
                     }
-                } catch {
-                    print(error)
+                    
+                    client.save(on: req)
                 }
             }
         }
