@@ -2,7 +2,7 @@ import Foundation
 
 enum ClientToServerActionType: String {
     case fullClientUpdate
-    case statusUpdate
+    case stateUpdate
 }
 
 struct ClientToServerAction: Decodable {
