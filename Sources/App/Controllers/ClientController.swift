@@ -12,7 +12,7 @@ final class ClientController {
     /// Saves a decoded `Client` to the database.
     func create(_ req: Request) throws -> Future<Client> {
         return try req.content.decode(Client.self).flatMap { client in
-            print("creating client: hostname: \(client.hostName)")
+            print("creating client with hostname: \(client.hostName)")
             return client.save(on: req)
         }
     }
