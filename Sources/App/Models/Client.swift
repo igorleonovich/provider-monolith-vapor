@@ -15,14 +15,18 @@ final class Client: SQLiteUUIDModel {
     var userName: String
     var osType: String
     var osVersion: String
+    var kernelType: String
+    var kernelVersion: String
     var state: String
     
-    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, state: String = ClientState.unknown.rawValue) {
+    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, kernelType: String, kernelVersion: String, state: String = ClientState.unknown.rawValue) {
         self.id = id
         self.hostName = hostName
         self.userName = userName
         self.osType = osType
         self.osVersion = osVersion
+        self.kernelType = kernelType
+        self.kernelVersion = kernelVersion
         self.state = state
     }
 }
