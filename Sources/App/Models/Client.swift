@@ -1,13 +1,6 @@
 import FluentSQLite
 import Vapor
 
-enum ClientState: String {
-    case unknown
-    case ready
-    case progress
-    case running
-}
-
 final class Client: SQLiteUUIDModel {
     
     var id: UUID?
