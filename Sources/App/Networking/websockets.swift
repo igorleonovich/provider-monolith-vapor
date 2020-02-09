@@ -23,7 +23,7 @@ struct WebSockets {
                                 
                             case .fullClientUpdate:
                                 print("[fullClientUpdate]")
-                                let newClient = try JSONDecoder().decode(Client.self, from: clientToServerAction.data)
+                                let newClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
                                 
                                 client.hostName = newClient.hostName
                                 client.userName = newClient.userName
