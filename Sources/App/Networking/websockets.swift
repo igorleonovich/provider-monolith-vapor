@@ -1,4 +1,5 @@
 import Vapor
+import ProviderSDK
 
 struct WebSockets {
     
@@ -58,6 +59,8 @@ struct WebSockets {
                     }
                     
                     client.save(on: req)
+                }.catch { error in
+                    print(error)
                 }
             }
         }

@@ -1,5 +1,6 @@
 import FluentSQLite
 import Vapor
+import ProviderSDK
 
 final class Client: SQLiteUUIDModel {
     
