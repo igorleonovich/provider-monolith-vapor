@@ -33,7 +33,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     // WebSockets
     let webSocketServer = NIOWebSocketServer.default()
-    WebSockets.configure(webSocketServer)
+    WebSocketsManager.configure(webSocketServer)
     services.register(webSocketServer, as: WebSocketServer.self)
     
     // Server Config
