@@ -12,6 +12,15 @@ final class DeploymentController {
             print("start deployment with deploymentConfig on a client via ws...")
             print(deploymentConfig)
             
+            if let ws = WebSocketsManager.clients.values.first {
+                do {
+                    let json = try JSONEncoder().encode(deploymentConfig)
+                    ws.send(json)
+                } catch {
+                    print(error)
+                }
+            }
+            
             let deployment = Deployment.init(id: UUID(), state: DeploymentState.transporting.rawValue)
             return deployment.create(on: req)
         }
