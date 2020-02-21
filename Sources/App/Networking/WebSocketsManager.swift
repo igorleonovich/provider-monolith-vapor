@@ -36,19 +36,20 @@ struct WebSocketsManager {
                                     print("[fullClientUpdate]")
                                     let newClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
 
-                                    client.hostName = newClient.hostName
-                                    client.userName = newClient.userName
-                                    client.osType = newClient.osType
-                                    client.osVersion = newClient.osVersion
-                                    client.kernelType = newClient.kernelType
-                                    client.kernelVersion = newClient.kernelVersion
-                                    client.state = newClient.state
+                                    client.hostName = newClient.hostName!
+                                    client.userName = newClient.userName!
+                                    client.osType = newClient.osType!
+                                    client.osVersion = newClient.osVersion!
+                                    client.kernelType = newClient.kernelType!
+                                    client.kernelVersion = newClient.kernelVersion!
+                                    client.state = newClient.state!
 
-                                case .stateUpdate:
-                                    if let newClientStateString = String(data: clientToServerAction.data, encoding: .utf8),
-                                        let newClientState = ClientState.init(rawValue: newClientStateString) {
-
-                                        client.state = newClientState.rawValue
+                                case .partialClientUpdate:
+                                    
+                                    let partiallyUpdatedClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
+                                    
+                                    if let newClientState = partiallyUpdatedClient.state {
+                                        client.state = newClientState
                                         print("[stateUpdate] \(newClientState)")
                                     }
                                 }
