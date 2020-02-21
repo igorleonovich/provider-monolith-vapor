@@ -37,6 +37,6 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(webSocketServer, as: WebSocketServer.self)
     
     // Server Config
-    let serverConfigure = NIOServerConfig.default(hostname: "localhost", port: 8888)
+    let serverConfigure = NIOServerConfig.default(hostname: "localhost", port: 8080)
     services.register(serverConfigure)
 }
