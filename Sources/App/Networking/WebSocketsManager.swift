@@ -7,6 +7,13 @@ struct WebSocketsManager {
     
     static func configure(_ webSocketServer: NIOWebSocketServer) {
         
+        webSocketServer.get("echo") { ws, req in
+            ws.onText { (ws, text) in
+                print("echo: \(text)")
+                ws.send(text)
+            }
+        }
+        
         webSocketServer.get("connect", Client.parameter) { webSocket, req in
             
             let _ = try req.parameters.next(Client.self).flatMap { client -> Future<Client> in
