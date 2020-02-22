@@ -55,9 +55,19 @@ struct WebSocketsManager {
                                     
                                     let partiallyUpdatedClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
                                     
-                                    if let newClientState = partiallyUpdatedClient.state {
-                                        client.state = newClientState
-                                        print("\(Date()) [\(client.hostName)] [stateUpdate] \(newClientState)")
+                                    if let updatedState = partiallyUpdatedClient.state {
+                                        client.state = updatedState
+                                        print("\(Date()) [\(client.hostName)] [state] \(updatedState)")
+                                    }
+                                    
+                                    if let updatedCPUUsage = partiallyUpdatedClient.cpuUsage {
+                                        client.cpuUsage = updatedCPUUsage
+                                        print("\(Date()) [\(client.hostName)] [CPUUsage] \(updatedCPUUsage)")
+                                    }
+                                    
+                                    if let updatedFreeRAM = partiallyUpdatedClient.freeRAM {
+                                        client.freeRAM = updatedFreeRAM
+                                        print("\(Date()) [\(client.hostName)] [FreeRAM] \(updatedFreeRAM)")
                                     }
                                 }
                             }
