@@ -40,7 +40,7 @@ struct WebSocketsManager {
                                 switch clientToServerActionType {
 
                                 case .fullClientUpdate:
-                                    print("[fullClientUpdate]")
+                                    print("\(Date()) [\(client.hostName)] [fullClientUpdate]")
                                     let newClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
 
                                     client.hostName = newClient.hostName!
@@ -57,7 +57,7 @@ struct WebSocketsManager {
                                     
                                     if let newClientState = partiallyUpdatedClient.state {
                                         client.state = newClientState
-                                        print("[stateUpdate] \(newClientState)")
+                                        print("\(Date()) [\(client.hostName)] [stateUpdate] \(newClientState)")
                                     }
                                 }
                             }
