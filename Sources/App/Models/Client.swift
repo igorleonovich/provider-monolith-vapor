@@ -12,10 +12,10 @@ final class Client: SQLiteUUIDModel {
     var kernelType: String
     var kernelVersion: String
     var state: String
-    var cpuUsage: Double
-    var freeRAM: Int
+    var cpuUsage: Double?
+    var freeRAM: Int?
     
-    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, kernelType: String, kernelVersion: String, state: String = ClientState.unknown.rawValue, cpuUsage: Double, freeRAM: Int) {
+    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, kernelType: String, kernelVersion: String, state: String = ClientState.unknown.rawValue, cpuUsage: Double?, freeRAM: Int?) {
         self.id = id
         self.hostName = hostName
         self.userName = userName
