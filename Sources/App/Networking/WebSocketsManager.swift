@@ -14,9 +14,9 @@ struct WebSocketsManager {
             }
         }
         
-        webSocketServer.get("connect", Client.parameter) { webSocket, req in
+        webSocketServer.get("connect", ProviderClient.parameter) { webSocket, req in
             
-            let _ = try req.parameters.next(Client.self).flatMap { client -> Future<Client> in
+            let _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
                 
                 clients[client.id!] = webSocket
                 

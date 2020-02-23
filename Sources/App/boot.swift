@@ -6,7 +6,7 @@ public func boot(_ app: Application) throws {
     print("\(Date()) [resetStats]")
     
     let future = app.withPooledConnection(to: .sqlite, closure: { db in
-        return Client.query(on: db).all()
+        return ProviderClient.query(on: db).all()
     }).map { clients in
         print(clients)
     }

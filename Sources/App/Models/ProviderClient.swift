@@ -2,7 +2,7 @@ import FluentSQLite
 import Vapor
 import ProviderSDK
 
-final class Client: SQLiteUUIDModel {
+final class ProviderClient: SQLiteUUIDModel {
     
     var id: UUID?
     var hostName: String
@@ -15,7 +15,7 @@ final class Client: SQLiteUUIDModel {
     var cpuUsage: Double?
     var freeRAM: Int?
     
-    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, kernelType: String, kernelVersion: String, state: String = ClientState.unknown.rawValue, cpuUsage: Double?, freeRAM: Int?) {
+    init(id: UUID? = nil, hostName: String, userName: String, osType: String, osVersion: String, kernelType: String, kernelVersion: String, state: String = ProviderClientState.unknown.rawValue, cpuUsage: Double?, freeRAM: Int?) {
         self.id = id
         self.hostName = hostName
         self.userName = userName
@@ -29,11 +29,11 @@ final class Client: SQLiteUUIDModel {
     }
 }
 
-/// Allows `Client` to be used as a dynamic migration.
-extension Client: Migration { }
+/// Allows `ProviderClient` to be used as a dynamic migration.
+extension ProviderClient: Migration { }
 
-/// Allows `Client` to be encoded to and decoded from HTTP messages.
-extension Client: Content { }
+/// Allows `ProviderClient` to be encoded to and decoded from HTTP messages.
+extension ProviderClient: Content { }
 
-/// Allows `Client` to be used as a dynamic parameter in route definitions.
-extension Client: Parameter { }
+/// Allows `ProviderClient` to be used as a dynamic parameter in route definitions.
+extension ProviderClient: Parameter { }

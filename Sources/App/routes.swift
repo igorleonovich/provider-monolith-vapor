@@ -7,10 +7,10 @@ public func routes(_ router: Router) throws {
         return "👋"
     }
 
-    let clientController = ClientController()
+    let clientController = ProviderClientController()
     router.get("clients", use: clientController.index)
     router.post("clients", use: clientController.create)
-    router.delete("clients", Client.parameter, use: clientController.delete)
+    router.delete("clients", ProviderClient.parameter, use: clientController.delete)
     
     let deploymentController = DeploymentController()
     router.get("deployments", use: deploymentController.index)
