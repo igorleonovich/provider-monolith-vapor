@@ -27,7 +27,7 @@ struct WebSocketsManager {
 
                 webSocket.onBinary { webSocket, data in
                     
-                    print("ws received data: \(data)")
+//                    print("ws received data: \(data)")
                     
                     Client.find(client.id!, on: req).do { client in
                         
@@ -40,6 +40,7 @@ struct WebSocketsManager {
                                 switch clientToServerActionType {
 
                                 case .fullClientUpdate:
+                                    
                                     print("\(Date()) [\(client.hostName)] [fullClientUpdate]")
                                     let newClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
 
@@ -50,6 +51,8 @@ struct WebSocketsManager {
                                     client.kernelType = newClient.kernelType!
                                     client.kernelVersion = newClient.kernelVersion!
                                     client.state = newClient.state!
+                                    client.cpuUsage = newClient.cpuUsage
+                                    client.freeRAM = newClient.freeRAM
 
                                 case .partialClientUpdate:
                                     
@@ -62,12 +65,12 @@ struct WebSocketsManager {
                                     
                                     if let updatedCPUUsage = partiallyUpdatedClient.cpuUsage {
                                         client.cpuUsage = updatedCPUUsage
-                                        print("\(Date()) [\(client.hostName)] [CPUUsage] \(updatedCPUUsage)")
+                                        print("\(Date()) [\(client.hostName)] [cpuUsage] \(updatedCPUUsage)")
                                     }
                                     
                                     if let updatedFreeRAM = partiallyUpdatedClient.freeRAM {
                                         client.freeRAM = updatedFreeRAM
-                                        print("\(Date()) [\(client.hostName)] [FreeRAM] \(updatedFreeRAM)")
+                                        print("\(Date()) [\(client.hostName)] [freeRAM] \(updatedFreeRAM)")
                                     }
                                 }
                             }
@@ -80,6 +83,25 @@ struct WebSocketsManager {
                         print(error)
                     }
                 }
+                
+                webSocket.onCloseCode { wsErrorCode in
+                    print("ws closed: \(wsErrorCode)")
+                    Client.find(client.id!, on: req).do { client in
+                        guard let client = client else { return }
+                        client.state = ClientState.unavailable.rawValue
+                        client.cpuUsage = nil
+                        client.freeRAM = nil
+                        client.save(on: req)
+                    }.catch { error in
+                        print(error)
+                    }
+                }
+                
+                webSocket.onError { webSocket, error in
+                    print("ws error")
+                    print(error)
+                }
+                
                 return client.save(on: req)
             }
         }

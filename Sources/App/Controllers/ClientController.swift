@@ -18,16 +18,4 @@ final class ClientController {
             return client.delete(on: req)
         }.transform(to: .ok)
     }
-    
-    func resetStats(_ req: Request) throws -> Future<HTTPStatus> {
-        print("\(Date()) [resetStats]")
-        return Client.query(on: req).all().map { clients in
-            clients.forEach { client in
-                client.state = "unavailable"
-                client.cpuUsage = nil
-                client.freeRAM = nil
-                client.update(on: req)
-            }
-        }.transform(to: .ok)
-    }
 }
