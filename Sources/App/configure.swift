@@ -13,7 +13,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
     // Register middleware
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
-    // middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
+    middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
 
@@ -35,8 +35,4 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let webSocketServer = NIOWebSocketServer.default()
     WebSocketsManager.configure(webSocketServer)
     services.register(webSocketServer, as: WebSocketServer.self)
-    
-    // Server Config
-    let serverConfigure = NIOServerConfig.default(hostname: "localhost", port: 8888)
-    services.register(serverConfigure)
 }
