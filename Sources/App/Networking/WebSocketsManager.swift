@@ -29,7 +29,7 @@ struct WebSocketsManager {
                     
 //                    print("ws received data: \(data)")
                     
-                    Client.find(client.id!, on: req).do { client in
+                    ProviderClient.find(client.id!, on: req).do { client in
                         
                         guard let client = client else { return }
                         
@@ -42,7 +42,7 @@ struct WebSocketsManager {
                                 case .fullClientUpdate:
                                     
                                     print("\(Date()) [\(client.hostName)] [fullClientUpdate]")
-                                    let newClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
+                                    let newClient = try JSONDecoder().decode(ProviderLocalClient.self, from: clientToServerAction.data)
 
                                     client.hostName = newClient.hostName!
                                     client.userName = newClient.userName!
@@ -56,7 +56,7 @@ struct WebSocketsManager {
 
                                 case .partialClientUpdate:
                                     
-                                    let partiallyUpdatedClient = try JSONDecoder().decode(LocalClient.self, from: clientToServerAction.data)
+                                    let partiallyUpdatedClient = try JSONDecoder().decode(ProviderLocalClient.self, from: clientToServerAction.data)
                                     
                                     if let updatedState = partiallyUpdatedClient.state {
                                         client.state = updatedState
@@ -86,9 +86,9 @@ struct WebSocketsManager {
                 
                 webSocket.onCloseCode { wsErrorCode in
                     print("ws closed: \(wsErrorCode)")
-                    Client.find(client.id!, on: req).do { client in
+                    ProviderClient.find(client.id!, on: req).do { client in
                         guard let client = client else { return }
-                        client.state = ClientState.unavailable.rawValue
+                        client.state = ProviderClientState.unavailable.rawValue
                         client.cpuUsage = nil
                         client.freeRAM = nil
                         client.save(on: req)
