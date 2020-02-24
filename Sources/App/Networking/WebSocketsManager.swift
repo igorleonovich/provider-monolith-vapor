@@ -9,12 +9,14 @@ struct WebSocketsManager {
         
         webSocketServer.get("echo") { ws, req in
             ws.onText { (ws, text) in
-                print("echo: \(text)")
-                ws.send(text)
+                print("[echo] \(text)")
+                ws.send("echo: \(text)")
             }
         }
         
         webSocketServer.get("connect", ProviderClient.parameter) { webSocket, req in
+            
+            print("[ws connected]")
             
             let _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
                 
@@ -22,12 +24,12 @@ struct WebSocketsManager {
                 
                 webSocket.onText { webSocket, text in
                     
-                    print("ws received text: \(text)")
+                    print("[ws text] \(text)")
                 }
 
                 webSocket.onBinary { webSocket, data in
                     
-//                    print("ws received data: \(data)")
+                    // print("[ws data] \(data)")
                     
                     ProviderClient.find(client.id!, on: req).do { client in
                         
@@ -78,28 +80,19 @@ struct WebSocketsManager {
                             print(error)
                         }
                         
-                        client.save(on: req)
+                        let _ = client.save(on: req)
                     }.catch { error in
                         print(error)
                     }
                 }
                 
                 webSocket.onCloseCode { wsErrorCode in
-                    print("ws closed: \(wsErrorCode)")
-                    ProviderClient.find(client.id!, on: req).do { client in
-                        guard let client = client else { return }
-                        client.state = ProviderClientState.unavailable.rawValue
-                        client.cpuUsage = nil
-                        client.freeRAM = nil
-                        client.save(on: req)
-                    }.catch { error in
-                        print(error)
-                    }
+                    print("[ws closed] \(wsErrorCode)")
+                    ProviderClientController.resetStats(on: req)
                 }
                 
                 webSocket.onError { webSocket, error in
-                    print("ws error")
-                    print(error)
+                    print("[ws error] \(error)")
                 }
                 
                 return client.save(on: req)
