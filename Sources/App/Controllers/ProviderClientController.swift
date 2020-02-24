@@ -21,13 +21,17 @@ final class ProviderClientController {
     
     static func resetStats(on container: Container) {
         print("\(Date()) [resetStats] [all]")
-        let _ = container.withPooledConnection(to: .sqlite, closure: { worker in
-            return ProviderClient.query(on: worker).all().map { clients in
-                return clients.compactMap { client -> Future<ProviderClient> in
-                    return resetStats(on: worker, client: client)
+        do {
+            let _ = try container.withPooledConnection(to: .sqlite, closure: { worker in
+                return ProviderClient.query(on: worker).all().map { clients in
+                    return clients.compactMap { client -> Future<ProviderClient> in
+                        return resetStats(on: worker, client: client)
+                    }
                 }
-            }
-        })
+            }).wait()
+        } catch {
+            print(error)
+        }
     }
     
     static func resetStats(on worker: DatabaseConnectable, client: ProviderClient) -> Future<ProviderClient> {
