@@ -16,7 +16,7 @@ struct WebSocketsManager {
         
         webSocketServer.get("connect", ProviderClient.parameter) { webSocket, req in
             
-            print("[ws connected]")
+            print("[ws] [client connected]")
             
             var clientID: UUID!
             
@@ -27,12 +27,12 @@ struct WebSocketsManager {
                 
                 webSocket.onText { webSocket, text in
                     
-                    print("[ws text] \(text)")
+                    print("[ws] [text from client] \(text)")
                 }
 
                 webSocket.onBinary { webSocket, data in
                     
-                    // print("[ws data] \(data)")
+//                     print("[ws] [data from client] \(data)")
                     
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         
@@ -90,7 +90,7 @@ struct WebSocketsManager {
                 _ = webSocket.onClose.map {
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("[ws closed] [\(client.userName)@\(client.hostName)]")
+                        print("[ws] [closed] [\(client.userName)@\(client.hostName)]")
                         _ = ProviderClientController.resetStats(on: req, client: client)
                     }
                 }
@@ -98,12 +98,14 @@ struct WebSocketsManager {
                 webSocket.onError { webSocket, error in
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("[ws error] [\(client.userName)@\(client.hostName)] \(error)")
+                        print("[ws] [error] [\(client.userName)@\(client.hostName)] \(error)")
                     }
                 }
                 
                 return client.save(on: req)
             }
         }
+        
+        print("[ws] [server configured]")
     }
 }
