@@ -20,7 +20,7 @@ final class ProviderClientController {
     }
     
     static func resetStats(on container: Container) {
-        print("\(Date()) [resetStats]")
+        print("\(Date()) [resetStats] [all]")
         let _ = container.withPooledConnection(to: .sqlite, closure: { worker in
             return ProviderClient.query(on: worker).all().map { clients in
                 return clients.compactMap { client -> Future<ProviderClient> in
@@ -31,6 +31,7 @@ final class ProviderClientController {
     }
     
     static func resetStats(on worker: DatabaseConnectable, client: ProviderClient) -> Future<ProviderClient> {
+        print("\(Date()) [resetStats] [\(client.userName)@\(client.hostName)]")
         client.state = "unavailable"
         client.cpuUsage = nil
         client.freeRAM = nil
