@@ -9,25 +9,27 @@ struct WebSocketsManager {
         
         webSocketServer.get("echo") { ws, req in
             ws.onText { (ws, text) in
-                print("[echo] \(text)")
+                print("\(Date()) [echo] \(text)")
                 ws.send("echo: \(text)")
             }
         }
         
         webSocketServer.get("connect", ProviderClient.parameter) { webSocket, req in
             
-            print("[ws] [client connected]")
+            print("\(Date()) [ws] [client connected]")
             
             var clientID: UUID!
             
             let _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
+                
+                webSocket.send("clientID OK")
                 
                 clientID = client.id
                 clients[clientID] = webSocket
                 
                 webSocket.onText { webSocket, text in
                     
-                    print("[ws] [text from client] \(text)")
+                    print("\(Date()) [ws] [text from client] \(text)")
                 }
 
                 webSocket.onBinary { webSocket, data in
@@ -90,7 +92,7 @@ struct WebSocketsManager {
                 _ = webSocket.onClose.map {
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("[ws] [closed] [\(client.userName)@\(client.hostName)]")
+                        print("\(Date()) [ws] [closed] [\(client.userName)@\(client.hostName)]")
                         _ = ProviderClientController.resetStats(on: req, client: client)
                     }
                 }
@@ -98,14 +100,19 @@ struct WebSocketsManager {
                 webSocket.onError { webSocket, error in
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("[ws] [error] [\(client.userName)@\(client.hostName)] \(error)")
+                        print("\(Date()) [ws] [error] [\(client.userName)@\(client.hostName)] \(error)")
                     }
                 }
                 
                 return client.save(on: req)
+            }.catch { error in
+                print(error)
+                webSocket.send("clientID FAIL")
+                webSocket.close()
+                print("\(Date()) [ws] [closed]")
             }
         }
         
-        print("[ws] [server configured]")
+        print("\(Date()) [ws] [server configured]")
     }
 }
