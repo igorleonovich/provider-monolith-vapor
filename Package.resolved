@@ -78,8 +78,8 @@
         "repositoryURL": "git@github.com:igorleonovich/ProviderSDK.git",
         "state": {
           "branch": null,
-          "revision": "a0c952aa9f6cc440956420357bb48e794c153847",
-          "version": "1.0.11"
+          "revision": "e46facd5a71c885046277a1ccff880139b701a17",
+          "version": "1.0.13"
         }
       },
       {

@@ -1,4 +1,5 @@
 import Vapor
+import ProviderSDK
 
 final class ProviderClientController {
 
