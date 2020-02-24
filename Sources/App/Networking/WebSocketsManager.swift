@@ -18,9 +18,12 @@ struct WebSocketsManager {
             
             print("[ws connected]")
             
+            var clientID: UUID!
+            
             let _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
                 
-                clients[client.id!] = webSocket
+                clientID = client.id
+                clients[clientID] = webSocket
                 
                 webSocket.onText { webSocket, text in
                     
@@ -31,7 +34,7 @@ struct WebSocketsManager {
                     
                     // print("[ws data] \(data)")
                     
-                    ProviderClient.find(client.id!, on: req).do { client in
+                    _ = ProviderClient.find(clientID, on: req).map { client in
                         
                         guard let client = client else { return }
                         
@@ -43,7 +46,7 @@ struct WebSocketsManager {
 
                                 case .fullClientUpdate:
                                     
-                                    print("\(Date()) [\(client.hostName)] [fullClientUpdate]")
+                                    print("\(Date()) [\(client.userName)@\(client.hostName)] [fullClientUpdate]")
                                     let newClient = try JSONDecoder().decode(ProviderLocalClient.self, from: clientToServerAction.data)
 
                                     client.hostName = newClient.hostName!
@@ -62,17 +65,17 @@ struct WebSocketsManager {
                                     
                                     if let updatedState = partiallyUpdatedClient.state {
                                         client.state = updatedState
-                                        print("\(Date()) [\(client.hostName)] [state] \(updatedState)")
+                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [state] \(updatedState)")
                                     }
                                     
                                     if let updatedCPUUsage = partiallyUpdatedClient.cpuUsage {
                                         client.cpuUsage = updatedCPUUsage
-                                        print("\(Date()) [\(client.hostName)] [cpuUsage] \(updatedCPUUsage)")
+                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [cpuUsage] \(updatedCPUUsage)")
                                     }
                                     
                                     if let updatedFreeRAM = partiallyUpdatedClient.freeRAM {
                                         client.freeRAM = updatedFreeRAM
-                                        print("\(Date()) [\(client.hostName)] [freeRAM] \(updatedFreeRAM)")
+                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [freeRAM] \(updatedFreeRAM)")
                                     }
                                 }
                             }
@@ -81,18 +84,22 @@ struct WebSocketsManager {
                         }
                         
                         let _ = client.save(on: req)
-                    }.catch { error in
-                        print(error)
                     }
                 }
                 
-                webSocket.onCloseCode { wsErrorCode in
-                    print("[ws closed] \(wsErrorCode)")
-                    ProviderClientController.resetStats(on: req)
+                _ = webSocket.onClose.map {
+                    _ = ProviderClient.find(clientID, on: req).map { client in
+                        guard let client = client else { return }
+                        print("[ws closed] [\(client.userName)@\(client.hostName)]")
+                        _ = ProviderClientController.resetStats(on: req, client: client)
+                    }
                 }
                 
                 webSocket.onError { webSocket, error in
-                    print("[ws error] \(error)")
+                    _ = ProviderClient.find(clientID, on: req).map { client in
+                        guard let client = client else { return }
+                        print("[ws error] [\(client.userName)@\(client.hostName)] \(error)")
+                    }
                 }
                 
                 return client.save(on: req)
