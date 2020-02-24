@@ -18,4 +18,18 @@ final class ProviderClientController {
             return client.delete(on: req)
         }.transform(to: .ok)
     }
+    
+    static func resetStats(on container: Container) {
+        print("\(Date()) [resetStats]")
+        container.withPooledConnection(to: .sqlite, closure: { db in
+            return ProviderClient.query(on: db).all().map { clients in
+                return clients.compactMap { client -> Future<ProviderClient> in
+                    client.state = "unavailable"
+                    client.cpuUsage = nil
+                    client.freeRAM = nil
+                    return client.update(on: db)
+                }
+            }
+        })
+    }
 }
