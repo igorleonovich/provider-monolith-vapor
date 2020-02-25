@@ -37,7 +37,7 @@ struct WebSocketsManager {
                 }
                 
                 _ = webSocket.onClose.map {
-                    _ = ProviderClient.find(clientID, on: req).map { client in
+                    _ = ProviderClient.find(managerID, on: req).map { client in
                         guard let client = client else { return }
                         print("\(Date()) [ws manager] [\(client.userName)@\(client.hostName)] [closed]")
                         _ = ProviderClientController.resetStats(on: req, client: client)
@@ -45,13 +45,13 @@ struct WebSocketsManager {
                 }
                 
                 webSocket.onError { webSocket, error in
-                    _ = ProviderClient.find(clientID, on: req).map { client in
+                    _ = ProviderClient.find(managerID, on: req).map { client in
                         guard let client = client else { return }
                         print("\(Date()) [ws manager] [\(client.userName)@\(client.hostName)] [error] \(error)")
                     }
                 }
                 
-                return client.save(on: req)
+                return manager.save(on: req)
             }
         }
         
