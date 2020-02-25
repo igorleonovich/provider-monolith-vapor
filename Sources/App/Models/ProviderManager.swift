@@ -5,10 +5,12 @@ import ProviderSDK
 public final class ProviderManager: Codable {
     
     public var id: UUID?
-    
-    init(id: UUID?) {
-        self.id = id
-    }
+    public var type: String
+}
+
+enum ProviderManagerType: String {
+    case CLI
+    case Web
 }
 
 extension ProviderManager: PostgreSQLUUIDModel {}
