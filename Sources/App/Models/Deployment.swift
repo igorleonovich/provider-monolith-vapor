@@ -1,7 +1,7 @@
-import FluentSQLite
+import FluentPostgreSQL
 import Vapor
 
-final class Deployment: SQLiteUUIDModel {
+final class Deployment: PostgreSQLUUIDModel {
     
     var id: UUID?
     var state: String

@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentPostgreSQL
 import Vapor
 import ProviderSDK
 
-extension ProviderClient: SQLiteUUIDModel {}
+extension ProviderClient: PostgreSQLUUIDModel {}
 
 /// Allows `ProviderClient` to be used as a dynamic migration.
 extension ProviderClient: Migration { }
