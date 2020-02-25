@@ -4,6 +4,7 @@ import ProviderSDK
 struct WebSocketsManager {
     
     static var clients = [UUID: WebSocket]()
+    static var managers = [UUID: WebSocket]()
     
     static func configure(_ webSocketServer: NIOWebSocketServer) {
         
@@ -14,13 +15,53 @@ struct WebSocketsManager {
             }
         }
         
-        webSocketServer.get("connect", ProviderClient.parameter) { webSocket, req in
+        webSocketServer.get("connectManager", ProviderManager.parameter) { webSocket, req in
             
-            print("\(Date()) [ws] [client connected]")
+            print("\(Date()) [ws manager] [connected]")
+            
+            var managerID: UUID!
+            
+            _ = try req.parameters.next(ProviderManager.self).flatMap { manager -> Future<ProviderManager> in
+                
+                webSocket.send("managerID OK")
+                
+                managerID = manager.id
+                managers[managerID] = webSocket
+                
+                webSocket.onText { webSocket, text in
+                    print("\(Date()) [ws manager] [text] \(text)")
+                }
+                
+                webSocket.onBinary { webSocket, data in
+                     print("[ws manager] [data] \(data)")
+                }
+                
+                _ = webSocket.onClose.map {
+                    _ = ProviderClient.find(clientID, on: req).map { client in
+                        guard let client = client else { return }
+                        print("\(Date()) [ws manager] [\(client.userName)@\(client.hostName)] [closed]")
+                        _ = ProviderClientController.resetStats(on: req, client: client)
+                    }
+                }
+                
+                webSocket.onError { webSocket, error in
+                    _ = ProviderClient.find(clientID, on: req).map { client in
+                        guard let client = client else { return }
+                        print("\(Date()) [ws manager] [\(client.userName)@\(client.hostName)] [error] \(error)")
+                    }
+                }
+                
+                return client.save(on: req)
+            }
+        }
+        
+        webSocketServer.get("connectClient", ProviderClient.parameter) { webSocket, req in
+            
+            print("\(Date()) [ws client] [connected]")
             
             var clientID: UUID!
             
-            let _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
+            _ = try req.parameters.next(ProviderClient.self).flatMap { client -> Future<ProviderClient> in
                 
                 webSocket.send("clientID OK")
                 
@@ -29,7 +70,7 @@ struct WebSocketsManager {
                 
                 webSocket.onText { webSocket, text in
                     
-                    print("\(Date()) [ws] [text from client] \(text)")
+                    print("\(Date()) [ws client] [text from] \(text)")
                 }
 
                 webSocket.onBinary { webSocket, data in
@@ -48,7 +89,7 @@ struct WebSocketsManager {
 
                                 case .fullClientUpdate:
                                     
-                                    print("\(Date()) [\(client.userName)@\(client.hostName)] [fullClientUpdate]")
+                                    print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [fullClientUpdate]")
                                     let newClient = try JSONDecoder().decode(ProviderLocalClient.self, from: clientToServerAction.data)
 
                                     client.hostName = newClient.hostName!
@@ -67,17 +108,17 @@ struct WebSocketsManager {
                                     
                                     if let updatedState = partiallyUpdatedClient.state {
                                         client.state = updatedState
-                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [state] \(updatedState)")
+                                        print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [state] \(updatedState)")
                                     }
                                     
                                     if let updatedCPUUsage = partiallyUpdatedClient.cpuUsage {
                                         client.cpuUsage = updatedCPUUsage
-                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [cpuUsage] \(updatedCPUUsage)")
+                                        print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [cpuUsage] \(updatedCPUUsage)")
                                     }
                                     
                                     if let updatedFreeRAM = partiallyUpdatedClient.freeRAM {
                                         client.freeRAM = updatedFreeRAM
-                                        print("\(Date()) [\(client.userName)@\(client.hostName)] [freeRAM] \(updatedFreeRAM)")
+                                        print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [freeRAM] \(updatedFreeRAM)")
                                     }
                                 }
                             }
@@ -92,7 +133,7 @@ struct WebSocketsManager {
                 _ = webSocket.onClose.map {
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("\(Date()) [ws] [closed] [\(client.userName)@\(client.hostName)]")
+                        print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [closed]")
                         _ = ProviderClientController.resetStats(on: req, client: client)
                     }
                 }
@@ -100,7 +141,7 @@ struct WebSocketsManager {
                 webSocket.onError { webSocket, error in
                     _ = ProviderClient.find(clientID, on: req).map { client in
                         guard let client = client else { return }
-                        print("\(Date()) [ws] [error] [\(client.userName)@\(client.hostName)] \(error)")
+                        print("\(Date()) [ws client] [\(client.userName)@\(client.hostName)] [error] \(error)")
                     }
                 }
                 
@@ -109,10 +150,10 @@ struct WebSocketsManager {
                 print(error)
                 webSocket.send("clientID FAIL")
                 webSocket.close()
-                print("\(Date()) [ws] [closed]")
+                print("\(Date()) [ws client] [closed]")
             }
         }
         
-        print("\(Date()) [ws] [server configured]")
+        print("\(Date()) [ws server] [configured]")
     }
 }
