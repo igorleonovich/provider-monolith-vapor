@@ -9,7 +9,7 @@ final class ProviderClientController {
 
     func create(_ req: Request) throws -> Future<ProviderClient> {
         return try req.content.decode(ProviderClient.self).flatMap { client in
-            print("\(Date()) [create] \(client.hostName)")
+            print("\(Date()) [clients] [create] \(client.hostName)")
             return client.save(on: req)
         }
     }
@@ -21,7 +21,7 @@ final class ProviderClientController {
     }
     
     static func resetStats(on container: Container) {
-        print("\(Date()) [resetStats] [all]")
+        print("\(Date()) [clients] [resetStats] [all]")
         do {
             let _ = try container.withPooledConnection(to: .psql, closure: { worker in
                 return ProviderClient.query(on: worker).all().map { clients in

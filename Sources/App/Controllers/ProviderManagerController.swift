@@ -9,7 +9,7 @@ final class ProviderManagerController {
 
     func create(_ req: Request) throws -> Future<ProviderManager> {
         return try req.content.decode(ProviderManager.self).flatMap { manager in
-            print("\(Date()) [create] \(manager.type)")
+            print("\(Date()) [managers] [create] \(manager.type)")
             return manager.save(on: req)
         }
     }
