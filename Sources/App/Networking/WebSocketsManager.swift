@@ -33,7 +33,26 @@ struct WebSocketsManager {
                 }
                 
                 webSocket.onBinary { webSocket, data in
-                     print("[ws manager] [data] \(data)")
+                    print("[ws manager] [data] \(data)")
+                    _ = ProviderManager.find(managerID, on: req).map { manager in
+                        
+                        guard let manager = manager else { return }
+                        
+                        let managerToServerAction = try JSONDecoder().decode(ManagerToServerAction.self, from: data)
+                        if let managerToServerActionType = ManagerToServerActionType.init(rawValue: managerToServerAction.type) {
+
+                            switch managerToServerActionType {
+
+                            case .deployConfig:
+                                
+                                let config = try JSONDecoder().decode(DeploymentConfig.self, from: managerToServerAction.data)
+
+                                print("\(Date()) [ws manager] [deployConfig] \(config)")
+                            }
+                        }
+                        
+                        let _ = manager.save(on: req)
+                    }
                 }
                 
                 _ = webSocket.onClose.map {
