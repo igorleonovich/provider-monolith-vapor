@@ -14,7 +14,7 @@ let package = Package(
         // 🔵 PostgreSQL
         .package(url: "https://github.com/vapor/fluent-postgresql.git", from: "1.0.0"),
         // 💙 ProviderSDK
-        .package(url: "git@github.com:igorleonovich/provider-sdk.git", from: "1.0.0")
+        .package(url: "git@github.com:igorleonovich/provider-sdk-swift.git", from: "1.0.0")
     ],
     targets: [
         .target(name: "App", dependencies: ["SPMUtility", "Vapor", "FluentPostgreSQL", "ProviderSDK"]),
